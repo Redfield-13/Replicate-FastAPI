@@ -4,7 +4,7 @@ import replicate
 import os
 
 
-os.environ["REPLICATE_API_TOKEN"] = "r8_JGNyG3Yu1sZqWvGoCBSA95Rp8g95MnF18b7Lj"
+os.environ["REPLICATE_API_TOKEN"] = "r8_6IM96We2dNb4msguLPTnN5TUlMrNwOC02pHNh"
 
 app = FastAPI()
 
@@ -51,7 +51,7 @@ def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, ne
 
 @app.get("/musicgen")
 def read_image(model: Union[str, None] = None, prompt: Union[str, None] = None, duration: Union[int, None] = None):
-    output = replicate.run(
+    id = replicate.prediction.get(
         "meta/musicgen:b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2b38",
         input={
             "top_k": 250,
@@ -68,5 +68,7 @@ def read_image(model: Union[str, None] = None, prompt: Union[str, None] = None, 
             "classifier_free_guidance": 3
             }
     )
-    print(output)
-    return {"link":output}
+
+    
+    print(id)
+    return {"link":id}
