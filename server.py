@@ -320,3 +320,78 @@ def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = N
     print(bill_res.json())
 
     return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/llavabb")
+def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = None, top_p: Union[int, None] = None, temperature: Union[int, None] = None, max_tokens: Union[int, None] = None, history: Union[str, None] = None):
+
+    payload = {
+            "version": "41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174",
+            "input": {
+            "image": imageUrl,
+            "top_p": top_p,
+            "prompt": "What\'"+prompt,
+            "history": history,
+            "max_tokens": max_tokens,
+            "temperature": temperature
+            }
+    }
+    print(req_url)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      print(response)
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print(response_status)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/pasd")
+def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = None, Negprompt: Union[str, None] = None, seed: Union[int, None] = None, guide_scale: Union[int, None] = None, conditioning_scale: Union[int, None] = None, denoise_steps: Union[int, None] = None, upsample_scale: Union[int, None] = None):
+
+    payload = {
+            "version": "d59e83ee13c42b137aee558c483e3acc0a8ecdacb1444a7be48152f008dcc195",
+            "input": {
+            "image": imageUrl,
+            "prompt": prompt,
+            "n_prompt": Negprompt,
+            "denoise_steps": denoise_steps,
+            "guidance_scale": guide_scale,
+            "upsample_scale": upsample_scale,
+            "conditioning_scale": conditioning_scale
+            }
+    }
+    print(req_url)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      print(response)
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print(response_status)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
