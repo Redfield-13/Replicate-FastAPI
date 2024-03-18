@@ -395,3 +395,75 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
     print(bill_res.json())
 
     return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/animate")
+def read_image(model: Union[str, None] = None, ModuleType: Union[str, None] = None, prompt: Union[str, None] = None, n_prompt: Union[str, None] = None, steps: Union[int, None] = None, guidance_scale: Union[int, None] = None, seed: Union[int, None] = None):
+
+    payload = {
+            "version": "beecf59c4aee8d81bf04f0381033dfa10dc16e845b4ae00d281e2fa377e48a9f",
+            "input": {
+            "path": ModuleType,
+            "seed": seed,
+            "steps": steps,
+            "prompt": prompt,
+            "n_prompt": n_prompt,
+            "motion_module": model,
+            "guidance_scale": guidance_scale
+            }
+    }
+    print(req_url)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      print(response)
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print(response_status)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/infinitezoom")
+def read_image(output_format: Union[str, None] = None, prompt: Union[str, None] = None,  inpaint_iter: Union[int, None] = None):
+
+    payload = {
+            "version": "a2527c5074fc0cf9fa6015a40d75d080d1ddf7082fabe142f1ccd882c18fce61",
+            "input": {
+            "prompt": prompt,
+            "inpaint_iter": inpaint_iter,
+            "output_format": output_format
+            }
+    }
+    print(req_url)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      print(response)
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print(response_status)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
