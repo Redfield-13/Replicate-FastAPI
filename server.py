@@ -284,18 +284,19 @@ def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] =
     return {"link":requests.get(get_url, headers=headers).json()['output']}
 
 
-@app.get("/yollo")
-def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] = None, num_of_box: Union[str, None] = None, score_thr: Union[str, None] = None, nms_thr: Union[str, None] = None):
+@app.get("/waveform")
+def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = None, fg_alpha: Union[int, None] = None, bars_color: Union[str, None] = None, bar_count: Union[int, None] = None, bar_width: Union[int, None] = None, caption_text: Union[str, None] = None):
 
     payload = {
-            "version": "dc084a6692fe16e76d780e4ee218680fee1b09ecba9dca9dbd2b0579f951bf38",
+            "version": "116cf9b97d0a117cfe64310637bf99ae8542cc35d813744c6ab178a3e134ff5a",
             "input": {
-            "nms_thr": nms_thr,
-            "score_thr": score_thr,
-            "class_names": class_name,
-            "input_media": imageUrl,
-            "return_json": false,
-            "max_num_boxes": num_of_box
+            "audio": audioUrl,
+            "bg_color": bg_color,
+            "fg_alpha": fg_alpha,
+            "bar_count": bar_count,
+            "bar_width": bar_width,
+            "bars_color": bars_color,
+            "caption_text": caption_text
             }
     }
     print(req_url)
