@@ -467,3 +467,50 @@ def read_image(output_format: Union[str, None] = None, prompt: Union[str, None] 
     print(bill_res.json())
 
     return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/diffusionanime")
+def read_image(prompt_start: Union[str, None] = None, prompt_end: Union[str, None] = None,  width: Union[int, None] = None,  hieght: Union[int, None] = None,  num_inference_steps: Union[int, None] = None,  prompt_strength: Union[int, None] = None,
+num_animation_frames: Union[int, None] = None, num_interpolation_steps: Union[int, None] = None, guidance_scale: Union[int, None] = None, gif_frames_per_second: Union[int, None] = None,  
+gif_ping_pong: Union[int, None] = None,  film_interpolation: Union[bool, None] = None,  intermediate_output: Union[bool, None] = None, seed: Union[int, None] = None, output_format: Union[str, None] = None,):
+
+    payload = {
+            "version": "ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5",
+            "input": {
+            "width": 512,
+            "height": 512,
+            "prompt_end": "tall rectangular black monolith, a white room in the future with a bed, victorian details and a tall black monolith, a detailed matte painting by Wes Anderson, behance, light and space, reimagined by industrial light and magic, matte painting, criterion collection",
+            "prompt_start": "tall rectangular black monolith, monkeys in the desert looking at a large tall monolith, a detailed matte painting by Wes Anderson, behance, light and space, reimagined by industrial light and magic, matte painting, criterion collection",
+            "gif_ping_pong": true,
+            "output_format": "mp4",
+            "guidance_scale": 7.5,
+            "prompt_strength": 0.9,
+            "film_interpolation": true,
+            "intermediate_output": false,
+            "num_inference_steps": 50,
+            "num_animation_frames": 25,
+            "gif_frames_per_second": 20,
+            "num_interpolation_steps": 5
+            }
+    }
+    print(req_url)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      print(response)
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print(response_status)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
