@@ -4,6 +4,8 @@ import replicate
 import os
 import requests
 import time
+import json
+import ast
 
 # Replace with your actual Replicate API token
 api_token = "r8_TUB6o0Jc8ZNjce850ARcYaikasKKSPa27qrAB"
@@ -77,7 +79,7 @@ def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, ne
     payload = {
         "version": "ddfc2b08d209f9fa8c1eca692712918bd449f695dabb4a958da31802a9570fe4",
         "input": {
-        "prompt": prompt,
+        "prompt":"img" + prompt,
         "num_steps": num_steps,
         "style_name": style_name,
         "input_image": url,
@@ -95,6 +97,10 @@ def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, ne
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(5)
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
@@ -134,9 +140,12 @@ def read_image(model: Union[str, None] = None, prompt: Union[str, None] = None, 
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(5)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -148,7 +157,7 @@ def read_image(model: Union[str, None] = None, prompt: Union[str, None] = None, 
     return {"link":requests.get(get_url, headers=headers).json()['output']}
 
 @app.get("/multilang")
-def read_image(audiourl: Union[str, None] = None, source_lang: Union[str, None] = None, target_lang: Union[int, None] = None, duration_factor: Union[int, None] = None):
+def read_image(audiourl: Union[str, None] = None, source_lang: Union[str, None] = None, target_lang: Union[str, None] = None, duration_factor: Union[int, None] = None):
 
     payload = {
             "version": "fe1ce551597dee59a90f1fb418747c81214177f28c4e8728df96b06d2a2a6093",
@@ -156,7 +165,7 @@ def read_image(audiourl: Union[str, None] = None, source_lang: Union[str, None] 
             "audio_input": audiourl,
             "source_lang": source_lang,
             "target_lang": target_lang,
-            "duration_factor": duration
+            "duration_factor": duration_factor
             }
     }
     print(req_url)
@@ -168,26 +177,29 @@ def read_image(audiourl: Union[str, None] = None, source_lang: Union[str, None] 
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(8)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_multi_lang", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
     return {"link":requests.get(get_url, headers=headers).json()['output']}
 
 @app.get("/subtitler")
-def read_image(videourl: Union[str, None] = None, batch_size: Union[str, None] = None):
+def read_image(videoUrl: Union[str, None] = None, batch_size: Union[int, None] = None):
 
     payload = {
             "version": "410415fa53d2d3cfb180c2bbbf4a4a8bdb13f794e1bac515244741ef8685e4b3",
             "input": {
-            "file": videourl,
+            "file": videoUrl,
             "batch_size": batch_size
             }
     }
@@ -200,18 +212,26 @@ def read_image(videourl: Union[str, None] = None, batch_size: Union[str, None] =
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(8)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_subtitler", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
-
-    return {"link":requests.get(get_url, headers=headers).json()['output']}
+    output_array = requests.get(get_url, headers=headers).json()['output']
+    array = ast.literal_eval(output_array)
+    final_output = ''
+    print(output_array)
+    for item in array:
+      final_output += item["text"]
+    return {"link": final_output}
 
 
 @app.get("/objectidentify")
@@ -233,14 +253,17 @@ def read_image(videourl: Union[str, None] = None, mode: Union[str, None] = None)
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(5)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_object_identify", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -248,7 +271,7 @@ def read_image(videourl: Union[str, None] = None, mode: Union[str, None] = None)
 
 
 @app.get("/yollo")
-def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] = None, num_of_box: Union[str, None] = None, score_thr: Union[str, None] = None, nms_thr: Union[str, None] = None):
+def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] = None, num_of_box: Union[int, None] = None, score_thr: Union[float, None] = None, nms_thr: Union[float, None] = None, return_json: Union[bool, None] = None):
 
     payload = {
             "version": "dc084a6692fe16e76d780e4ee218680fee1b09ecba9dca9dbd2b0579f951bf38",
@@ -257,7 +280,7 @@ def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] =
             "score_thr": score_thr,
             "class_names": class_name,
             "input_media": imageUrl,
-            "return_json": false,
+            "return_json": return_json,
             "max_num_boxes": num_of_box
             }
     }
@@ -270,14 +293,17 @@ def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] =
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
       print(response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      time.sleep(5)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_yollo", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -315,7 +341,7 @@ def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = N
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_waveform", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -352,7 +378,7 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_llavabb", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -390,7 +416,7 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_pasd", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -428,7 +454,7 @@ def read_image(model: Union[str, None] = None, ModuleType: Union[str, None] = No
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_animate", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -462,7 +488,7 @@ def read_image(output_format: Union[str, None] = None, prompt: Union[str, None] 
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_infinite_zoom", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
@@ -509,7 +535,7 @@ gif_ping_pong: Union[int, None] = None,  film_interpolation: Union[bool, None] =
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
-    bill_body = { "billingId":"replicate_music_gen", "quantity":p_time }
+    bill_body = { "billingId":"replicate_diffusion_anime", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
