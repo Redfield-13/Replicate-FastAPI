@@ -8,7 +8,7 @@ import json
 import ast
 
 # Replace with your actual Replicate API token
-api_token = "r8_TUB6o0Jc8ZNjce850ARcYaikasKKSPa27qrAB"
+api_token = "r8_OhHyG47YFB5MPHyZAKWr3jQJZ0jqHCf0wZpny"
 
 req_url = "https://api.replicate.com/v1/predictions"
 
@@ -27,7 +27,7 @@ billng_headers = {
 }
 
 
-os.environ["REPLICATE_API_TOKEN"] = "r8_TUB6o0Jc8ZNjce850ARcYaikasKKSPa27qrAB"
+os.environ["REPLICATE_API_TOKEN"] = "r8_OhHyG47YFB5MPHyZAKWr3jQJZ0jqHCf0wZpny"
 
 app = FastAPI()
 
@@ -54,8 +54,13 @@ def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, to
     get_url = response.json()['urls']['get']
     response_status = requests.get(get_url, headers=headers).json()['status']
     while response_status != 'succeeded':
-      response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+     response_status = requests.get(get_url, headers=headers).json()['status']
+     print("status: " + response_status)
+     if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+     if response_status != "succeeded":
+        time.sleep(10)
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
@@ -96,11 +101,12 @@ def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, ne
     response_status = requests.get(get_url, headers=headers).json()['status']
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(5)
+      if response_status != "succeeded":
+        time.sleep(10)
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
@@ -141,11 +147,12 @@ def read_image(model: Union[str, None] = None, prompt: Union[str, None] = None, 
     print(response_status)
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(5)
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -178,11 +185,12 @@ def read_image(audiourl: Union[str, None] = None, source_lang: Union[str, None] 
     print(response_status)
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(8)
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -213,11 +221,12 @@ def read_image(videoUrl: Union[str, None] = None, batch_size: Union[int, None] =
     print(response_status)
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(8)
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -254,11 +263,12 @@ def read_image(videourl: Union[str, None] = None, mode: Union[str, None] = None)
     print(response_status)
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(5)
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -294,11 +304,12 @@ def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] =
     print(response_status)
     while response_status != 'succeeded':
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
       if response_status == "failed":
         print(requests.get(get_url, headers=headers).json())
         break
-      time.sleep(5)
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -311,21 +322,22 @@ def read_image(imageUrl: Union[str, None] = None, class_name: Union[str, None] =
 
 
 @app.get("/waveform")
-def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = None, fg_alpha: Union[int, None] = None, bars_color: Union[str, None] = None, bar_count: Union[int, None] = None, bar_width: Union[int, None] = None, caption_text: Union[str, None] = None):
+def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = "#000000", fg_alpha: Union[float, None] = 0.75, bar_count: Union[int, None] = 100, bar_width: Union[int, None] = 0.4, caption_text: Union[str, None] = "80s trancecore, driving rhythm section, ambient textures, boomwhackers, persian scale mode, tribute recording", bars_color: Union[str, None] = "#ffffff"):
 
     payload = {
             "version": "116cf9b97d0a117cfe64310637bf99ae8542cc35d813744c6ab178a3e134ff5a",
             "input": {
             "audio": audioUrl,
-            "bg_color": bg_color,
+            "bg_color": "#000000",
             "fg_alpha": fg_alpha,
             "bar_count": bar_count,
             "bar_width": bar_width,
             "bars_color": bars_color,
             "caption_text": caption_text
-            }
+          }
     }
     print(req_url)
+    print(payload)
 
     response = requests.post(req_url, headers=headers, json=payload)
    
@@ -334,9 +346,13 @@ def read_image(audioUrl: Union[str, None] = None, bg_color: Union[str, None] = N
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -371,9 +387,13 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -386,14 +406,14 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
 
 
 @app.get("/pasd")
-def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = None, Negprompt: Union[str, None] = None, seed: Union[int, None] = None, guide_scale: Union[int, None] = None, conditioning_scale: Union[int, None] = None, denoise_steps: Union[int, None] = None, upsample_scale: Union[int, None] = None):
+def read_image(url: Union[str, None] = None, prompt: Union[str, None] = None, negprompt: Union[str, None] = None, seed: Union[float, None] = None, guide_scale: Union[float, None] = None, conditioning_scale: Union[float, None] = None, denoise_steps: Union[float, None] = None, upsample_scale: Union[float, None] = None):
 
     payload = {
             "version": "d59e83ee13c42b137aee558c483e3acc0a8ecdacb1444a7be48152f008dcc195",
             "input": {
-            "image": imageUrl,
+            "image": url,
             "prompt": prompt,
-            "n_prompt": Negprompt,
+            "n_prompt": negprompt,
             "denoise_steps": denoise_steps,
             "guidance_scale": guide_scale,
             "upsample_scale": upsample_scale,
@@ -409,9 +429,13 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -424,7 +448,7 @@ def read_image(imageUrl: Union[str, None] = None, prompt: Union[str, None] = Non
 
 
 @app.get("/animate")
-def read_image(model: Union[str, None] = None, ModuleType: Union[str, None] = None, prompt: Union[str, None] = None, n_prompt: Union[str, None] = None, steps: Union[int, None] = None, guidance_scale: Union[int, None] = None, seed: Union[int, None] = None):
+def read_image(model: Union[str, None] = None, ModuleType: Union[str, None] = None, prompt: Union[str, None] = None, n_prompt: Union[str, None] = None, steps: Union[float, None] = None, guidance_scale: Union[float, None] = None, seed: Union[float, None] = None):
 
     payload = {
             "version": "beecf59c4aee8d81bf04f0381033dfa10dc16e845b4ae00d281e2fa377e48a9f",
@@ -447,9 +471,13 @@ def read_image(model: Union[str, None] = None, ModuleType: Union[str, None] = No
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -481,9 +509,13 @@ def read_image(output_format: Union[str, None] = None, prompt: Union[str, None] 
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
@@ -496,27 +528,25 @@ def read_image(output_format: Union[str, None] = None, prompt: Union[str, None] 
 
 
 @app.get("/diffusionanime")
-def read_image(prompt_start: Union[str, None] = None, prompt_end: Union[str, None] = None,  width: Union[int, None] = None,  hieght: Union[int, None] = None,  num_inference_steps: Union[int, None] = None,  prompt_strength: Union[int, None] = None,
-num_animation_frames: Union[int, None] = None, num_interpolation_steps: Union[int, None] = None, guidance_scale: Union[int, None] = None, gif_frames_per_second: Union[int, None] = None,  
-gif_ping_pong: Union[int, None] = None,  film_interpolation: Union[bool, None] = None,  intermediate_output: Union[bool, None] = None, seed: Union[int, None] = None, output_format: Union[str, None] = None,):
+def read_image(prompt_start: Union[str, None] = None, prompt_end: Union[str, None] = None, width: Union[int, None] = None, hieght: Union[int, None] = None, num_inference_steps: Union[float, None] = None, prompt_strength: Union[float, None] = None, num_animation_frames: Union[float, None] = None, num_interpolation_steps: Union[float, None] = None, guidance_scale: Union[float, None] = None, gif_frames_per_second: Union[float, None] = None,gif_ping_pong: Union[bool, None] = None,film_interpolation: Union[bool, None] = None,intermediate_output: Union[bool, None] = None,seed: Union[float, None] = None, output_format: Union[str, None] = None):
 
     payload = {
             "version": "ca1f5e306e5721e19c473e0d094e6603f0456fe759c10715fcd6c1b79242d4a5",
             "input": {
-            "width": 512,
-            "height": 512,
-            "prompt_end": "tall rectangular black monolith, a white room in the future with a bed, victorian details and a tall black monolith, a detailed matte painting by Wes Anderson, behance, light and space, reimagined by industrial light and magic, matte painting, criterion collection",
-            "prompt_start": "tall rectangular black monolith, monkeys in the desert looking at a large tall monolith, a detailed matte painting by Wes Anderson, behance, light and space, reimagined by industrial light and magic, matte painting, criterion collection",
-            "gif_ping_pong": true,
-            "output_format": "mp4",
-            "guidance_scale": 7.5,
-            "prompt_strength": 0.9,
-            "film_interpolation": true,
-            "intermediate_output": false,
-            "num_inference_steps": 50,
-            "num_animation_frames": 25,
-            "gif_frames_per_second": 20,
-            "num_interpolation_steps": 5
+              "width": width,
+              "height": hieght,
+              "prompt_end": prompt_end,
+              "prompt_start": prompt_start,
+              "gif_ping_pong": gif_ping_pong,
+              "output_format": output_format,
+              "guidance_scale": guidance_scale,
+              "prompt_strength": prompt_strength,
+              "film_interpolation": film_interpolation,
+              "intermediate_output": intermediate_output,
+              "num_inference_steps": num_inference_steps,
+              "num_animation_frames": num_animation_frames,
+              "gif_frames_per_second": gif_frames_per_second,
+              "num_interpolation_steps": num_interpolation_steps
             }
     }
     print(req_url)
@@ -528,9 +558,13 @@ gif_ping_pong: Union[int, None] = None,  film_interpolation: Union[bool, None] =
     response_status = requests.get(get_url, headers=headers).json()['status']
     print(response_status)
     while response_status != 'succeeded':
-      print(response)
       response_status = requests.get(get_url, headers=headers).json()['status']
-      print(response_status)
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(10)
     
 
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
