@@ -8,7 +8,7 @@ import json
 import ast
 
 # Replace with your actual Replicate API token
-api_token = "r8_OhHyG47YFB5MPHyZAKWr3jQJZ0jqHCf0wZpny"
+api_token = "r8_bkSrCAbkZHKuYnVKrUoX87ERiykqDqG1Uz8AI"
 
 req_url = "https://api.replicate.com/v1/predictions"
 
@@ -27,7 +27,7 @@ billng_headers = {
 }
 
 
-os.environ["REPLICATE_API_TOKEN"] = "r8_OhHyG47YFB5MPHyZAKWr3jQJZ0jqHCf0wZpny"
+os.environ["REPLICATE_API_TOKEN"] = "r8_bkSrCAbkZHKuYnVKrUoX87ERiykqDqG1Uz8AI"
 
 app = FastAPI()
 
@@ -570,6 +570,45 @@ def read_image(prompt_start: Union[str, None] = None, prompt_end: Union[str, Non
     p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
     print(p_time)
     bill_body = { "billingId":"replicate_diffusion_anime", "quantity":p_time }
+    bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
+    print(bill_res.json())
+
+    return {"link":requests.get(get_url, headers=headers).json()['output']}
+
+
+@app.get("/coqui")
+def read_image(text: Union[str, None] = None, speaker: Union[str, None] = None,  language: Union[str, None] = "en", cleanup_voice: Union[bool, None] = None):
+
+    payload = {
+            "version": "684bc3855b37866c0c65add2ff39c78f3dea3f4ff103a436465326e0f438d55e",
+            "input": {
+              "text": text,
+              "speaker": speaker,
+              "language": language,
+              "cleanup_voice": cleanup_voice
+            }
+    }
+    print(payload)
+
+    response = requests.post(req_url, headers=headers, json=payload)
+   
+    print(response.json())
+    get_url = response.json()['urls']['get']
+    response_status = requests.get(get_url, headers=headers).json()['status']
+    print(response_status)
+    while response_status != 'succeeded':
+      response_status = requests.get(get_url, headers=headers).json()['status']
+      print("status: " + response_status)
+      if response_status == "failed":
+        print(requests.get(get_url, headers=headers).json())
+        break
+      if response_status != "succeeded":
+        time.sleep(5)
+    
+
+    p_time = requests.get(get_url, headers=headers).json()['metrics']['predict_time']
+    print(p_time)
+    bill_body = { "billingId":"replicate_infinite_zoom", "quantity":p_time }
     bill_res = requests.post(billig_url, headers=billng_headers, json=bill_body)
     print(bill_res.json())
 
